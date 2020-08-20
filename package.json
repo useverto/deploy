@@ -13,10 +13,12 @@
   },
   "dependencies": {
     "arweave": "^1.9.1",
+    "cli-progress": "^3.8.2",
     "mime-types": "^2.1.27",
     "sade": "^1.7.3"
   },
   "devDependencies": {
+    "@types/cli-progress": "^3.8.0",
     "@types/mime-types": "^2.1.0",
     "@types/node": "^14.6.0",
     "@types/sade": "^1.7.2",

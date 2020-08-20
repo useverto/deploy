@@ -6,6 +6,7 @@ import { lookup as lookupType } from "mime-types";
 import client from "../utils/arweave";
 import version from "../version";
 import createManifest from "../utils/manifest";
+import cliProgess, { SingleBar } from "cli-progress";
 
 export default async function command({ dir, keyfile }: Record<string, string>) {
   
@@ -20,6 +21,8 @@ export default async function command({ dir, keyfile }: Record<string, string>) 
   if(!fs.lstatSync(keyfileLocation).isFile()) return log("Given keyfile location does not point to a file!", LogType.error);
   if(!keyfileLocation.match(/(\.json)$/)) return log("Given keyfile is not a JSON!", LogType.error);
 
+  log("Starting to deploy...\n\n")
+
   let 
     filesToDeploy: string[] = [],
     routesWithTransactionID: Route[] = [];
@@ -31,11 +34,21 @@ export default async function command({ dir, keyfile }: Record<string, string>) 
         if(fs.lstatSync(analyizeDir + "/" + element).isDirectory()) mapFiles(analyizeDir + "/" + element);
         else if(fs.lstatSync(analyizeDir + "/" + element).isFile()) filesToDeploy.push(analyizeDir + "/" + element);
       }
-    };
+    },
+    progressBar = new SingleBar({ 
+      format (options, params, payload): string {
+        const bar = options.barCompleteString.substr(0, Math.round(params.progress*options.barsize));
+        return `${ payload.task } ${ bar } | ${ params.progress }% | ${ params.eta } | ${ params.value }/${ params.total }`;
+      }, 
+      hideCursor: true 
+    }, cliProgess.Presets.shades_grey);
 
   mapFiles(deployDir);
+  progressBar.start(filesToDeploy.length + 1, 0); // +1 is for the manifest
   
   for(const file of filesToDeploy) {
+
+    progressBar.update({ task: file.replace(deployDir + "/", "") })
 
     const
       data = new TextDecoder().decode(await promises.readFile(file)),
@@ -50,15 +63,12 @@ export default async function command({ dir, keyfile }: Record<string, string>) 
 
     while (!uploader.isComplete) {
       await uploader.uploadChunk();
-      log(`${ uploader.pctComplete }% complete, ${ uploader.uploadedChunks }/${ uploader.totalChunks }`);
     }
 
-    if(uploader.lastResponseStatus === 200) {
+    if(uploader.lastResponseStatus === 200) routesWithTransactionID.push({ path: file.replace(deployDir + "/", ""), transactionID: transaction.id });
+    else log(uploader.lastResponseStatus.toString() + "   " + file.replace(deployDir + "/", ""), LogType.error);
 
-      log(uploader.lastResponseStatus.toString() + "   " + file.replace(deployDir + "/", ""));
-      routesWithTransactionID.push({ path: file.replace(deployDir + "/", ""), transactionID: transaction.id });
-
-    }else log(uploader.lastResponseStatus.toString() + "   " + file.replace(deployDir + "/", ""), LogType.error);
+    progressBar.increment();
 
   }
 
@@ -74,14 +84,14 @@ export default async function command({ dir, keyfile }: Record<string, string>) 
 
   while (!manifestUploader.isComplete) {
     await manifestUploader.uploadChunk();
-    log(`${ manifestUploader.pctComplete }% complete, ${ manifestUploader.uploadedChunks }/${ manifestUploader.totalChunks }`);
   }
 
-  log(manifestUploader.lastResponseStatus.toString() + "   manifest.json");
+  progressBar.increment();
+  progressBar.stop();
 
   if(manifestUploader.lastResponseStatus === 200) {
 
-    log("Deployed to Arweave. Your site will be hosted on the URL below:", LogType.success);
+    log("\n\nDeployed to Arweave. Your site will be hosted on the URL below:", LogType.success);
     log(`${ "\x1b[36m" }https://arweave.net/${ manifestTransaction.id }`, LogType.log);
     log("You can check the status of this deployment by running " + "\x1b[1m" + `verto status ${ manifestTransaction.id }`, LogType.warning)
 
