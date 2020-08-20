@@ -3,11 +3,12 @@ import sade from "sade";
 import deployCommand from "./commands/deploy";
 import statusCommand from "./commands/status";
 import balanceCommand from "./commands/balance";
+import version from "./version";
 
 const prog = sade("verto");
 
 prog
-  .version("1.0.0")
+  .version(version)
 
 prog
   .command("deploy")

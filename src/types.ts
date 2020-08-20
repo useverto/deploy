@@ -4,3 +4,8 @@ export enum LogType {
   warning = "\x1b[33m",
   success = "\x1b[32m"
 }
+
+export interface Route {
+  path: string
+  transactionID: string
+}

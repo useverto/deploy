@@ -1,7 +1,10 @@
 import path from "path";
 import log from "../utils/logger";
-import { LogType } from "../types";
+import { LogType, Route } from "../types";
 import fs, { promises } from "fs";
+import { lookup as lookupType } from "mime-types";
+import client from "../utils/arweave";
+import version from "../version";
 
 export default async function command({ dir, keyfile }: Record<string, string>) {
   
@@ -16,7 +19,10 @@ export default async function command({ dir, keyfile }: Record<string, string>) 
   if(!fs.lstatSync(keyfileLocation).isFile()) return log("Given keyfile location does not point to a file!", LogType.error);
   if(!keyfileLocation.match(/(\.json)$/)) return log("Given keyfile is not a JSON!", LogType.error);
 
-  let filesToDeploy: string[] = [];
+  let 
+    filesToDeploy: string[] = [],
+    routesWithTransactionID: Route[] = [];
+
   const 
     keyfileContent = JSON.parse(new TextDecoder().decode(await promises.readFile(keyfileLocation))),
     mapFiles = (analyizeDir: string) => {
@@ -27,6 +33,30 @@ export default async function command({ dir, keyfile }: Record<string, string>) 
     };
 
   mapFiles(deployDir);
-  console.log(filesToDeploy);
+  
+  for(const file of filesToDeploy) {
+
+    const
+      data = new TextDecoder().decode(await promises.readFile(file)),
+      contentType = lookupType(file);
+
+    let transaction = await client.createTransaction({ data }, keyfileContent);
+    transaction.addTag("Content-Type", contentType ? contentType : "text/plain");
+    transaction.addTag("User-Agent", `verto-deploy/${ version }`);
+
+    await client.transactions.sign(transaction, keyfileContent);
+    let uploader = await client.transactions.getUploader(transaction);
+
+    while (!uploader.isComplete) {
+      await uploader.uploadChunk();
+      log(`${uploader.pctComplete}% complete, ${uploader.uploadedChunks}/${uploader.totalChunks}`);
+    }
+
+    log(uploader.lastResponseStatus.toString() + "   " + file)
+    routesWithTransactionID.push({ path: file, transactionID: transaction.id })
+
+  }
+
+  console.log(routesWithTransactionID);
 
 }
