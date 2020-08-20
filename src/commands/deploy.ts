@@ -5,6 +5,7 @@ import fs, { promises } from "fs";
 import { lookup as lookupType } from "mime-types";
 import client from "../utils/arweave";
 import version from "../version";
+import createManifest from "../utils/manifest";
 
 export default async function command({ dir, keyfile }: Record<string, string>) {
   
@@ -49,14 +50,31 @@ export default async function command({ dir, keyfile }: Record<string, string>) 
 
     while (!uploader.isComplete) {
       await uploader.uploadChunk();
-      log(`${uploader.pctComplete}% complete, ${uploader.uploadedChunks}/${uploader.totalChunks}`);
+      log(`${ uploader.pctComplete }% complete, ${ uploader.uploadedChunks }/${ uploader.totalChunks }`);
     }
 
-    log(uploader.lastResponseStatus.toString() + "   " + file)
-    routesWithTransactionID.push({ path: file, transactionID: transaction.id })
+    log(uploader.lastResponseStatus.toString() + "   " + file.replace(deployDir + "/", ""));
+    routesWithTransactionID.push({ path: file.replace(deployDir + "/", ""), transactionID: transaction.id });
 
   }
 
-  console.log(routesWithTransactionID);
+  let
+    manifest = createManifest(routesWithTransactionID),
+    manifestTransaction = await client.createTransaction({ data: manifest }, keyfileContent);
+
+  manifestTransaction.addTag("Content-Type", "application/x.arweave-manifest+json");
+  manifestTransaction.addTag("User-Agent", `verto-deploy/${ version }`);
+
+  await client.transactions.sign(manifestTransaction, keyfileContent);
+  let manifestUploader = await client.transactions.getUploader(manifestTransaction);
+
+  while (!manifestUploader.isComplete) {
+    await manifestUploader.uploadChunk();
+    log(`${ manifestUploader.pctComplete }% complete, ${ manifestUploader.uploadedChunks }/${ manifestUploader.totalChunks }`);
+  }
+
+  log(manifestUploader.lastResponseStatus.toString() + "   manifest.json");
+
+  log(manifest + "   " + manifestTransaction.id);
 
 }
