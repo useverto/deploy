@@ -16,6 +16,6 @@ export default async function command({ dir, keyfile }: Record<string, string>) 
   if(!fs.lstatSync(keyfileLocation).isFile()) return log("Given keyfile location does not point to a file!", LogType.error);
   if(!keyfileLocation.match(/(\.json)$/)) return log("Given keyfile is not a JSON!", LogType.error);
 
-  
+  const keyfileContent = new TextDecoder().decode(await promises.readFile(keyfileLocation));
 
 }
