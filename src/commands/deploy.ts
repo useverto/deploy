@@ -53,8 +53,12 @@ export default async function command({ dir, keyfile }: Record<string, string>) 
       log(`${ uploader.pctComplete }% complete, ${ uploader.uploadedChunks }/${ uploader.totalChunks }`);
     }
 
-    log(uploader.lastResponseStatus.toString() + "   " + file.replace(deployDir + "/", ""));
-    routesWithTransactionID.push({ path: file.replace(deployDir + "/", ""), transactionID: transaction.id });
+    if(uploader.lastResponseStatus === 200) {
+
+      log(uploader.lastResponseStatus.toString() + "   " + file.replace(deployDir + "/", ""));
+      routesWithTransactionID.push({ path: file.replace(deployDir + "/", ""), transactionID: transaction.id });
+
+    }else log(uploader.lastResponseStatus.toString() + "   " + file.replace(deployDir + "/", ""), LogType.error);
 
   }
 
@@ -75,6 +79,11 @@ export default async function command({ dir, keyfile }: Record<string, string>) 
 
   log(manifestUploader.lastResponseStatus.toString() + "   manifest.json");
 
-  log(manifest + "   " + manifestTransaction.id);
+  if(manifestUploader.lastResponseStatus === 200) {
+
+    log("Deployed to Arweave. Your site will be hosted on the URL below:", LogType.success);
+    log(`${ "\x1b[36m" }https://arweave.net/${ manifestTransaction.id }`, LogType.log);
+
+  }else log("There was an error uploading your site!", LogType.error)
 
 }
