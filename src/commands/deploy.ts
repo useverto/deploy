@@ -34,16 +34,23 @@ export default async function command({ dir, keyfile }: Record<string, string>) 
         if(fs.lstatSync(analyizeDir + "/" + element).isDirectory()) mapFiles(analyizeDir + "/" + element);
         else if(fs.lstatSync(analyizeDir + "/" + element).isFile()) filesToDeploy.push(analyizeDir + "/" + element);
       }
-    },
-    progressBar = new SingleBar({ 
-      format (options, params, payload): string {
-        const bar = options.barCompleteString.substr(0, Math.round(params.progress*options.barsize));
-        return `${ payload.task } ${ bar } | ${ params.progress }% | ${ params.eta } | ${ params.value }/${ params.total }`;
-      }, 
-      hideCursor: true 
-    }, cliProgess.Presets.shades_grey);
+    };
 
   mapFiles(deployDir);
+
+  let progressBar = new SingleBar({ 
+    barCompleteString: '\u2588',
+    barIncompleteString: '\u2591',
+    hideCursor: true,
+    clearOnComplete: true,
+    format (options, params, payload): string {
+      const 
+        completeSize = Math.round(params.progress * options.barsize),
+        incompleteSize = options.barsize - completeSize;
+
+      return `${ payload.task } ${ options.barCompleteString.substr(0, completeSize) + options.barIncompleteString.substr(0, incompleteSize) } | ${ params.progress }% | ${ params.eta } | ${ params.value }/${ params.total }`;
+    }
+  }, cliProgess.Presets.shades_classic);
   progressBar.start(filesToDeploy.length + 1, 0); // +1 is for the manifest
   
   for(const file of filesToDeploy) {
