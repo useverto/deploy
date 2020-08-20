@@ -48,7 +48,21 @@ export default async function command({ dir, keyfile }: Record<string, string>) 
         completeSize = Math.round(params.progress * options.barsize),
         incompleteSize = options.barsize - completeSize;
 
-      return `${ payload.task } ${ options.barCompleteString.substr(0, completeSize) + options.barIncompleteString.substr(0, incompleteSize) } | ${ params.progress }% | ${ params.eta } | ${ params.value }/${ params.total }`;
+      return "\x1b[2m" +
+      payload.task +
+      "\x1b[0m " +
+      options.barCompleteString.substr(0, completeSize) + 
+      options.barIncompleteString.substr(0, incompleteSize) +
+      " | " +
+      (params.progress * 100 < 25 ? "\x1b[2m\x1b[31m" : (params.progress * 100 < 50 ? "\x1b[31m" : (params.progress * 100 < 75 ? "\x1b[33m" : "\x1b[32m"))) +
+      Math.round((params.progress * 100 + Number.EPSILON) * 100) / 100 +
+      "\x1b[0m%" +
+      " | ETA: " +
+      params.eta + 
+      "s | " + 
+      params.value +
+      "/" + 
+      params.total;
     }
   }, cliProgess.Presets.shades_classic);
   progressBar.start(filesToDeploy.length + 1, 0); // +1 is for the manifest
