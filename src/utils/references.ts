@@ -1,9 +1,9 @@
-export default class ReferenceFixer {
+export class ReferenceFixer {
 
-  private src: string
-  private level: number
+  private src: string;
+  private level: number;
 
-  private readonly slashes: string
+  private readonly slashes: string;
 
   constructor (src: string, level: number) {
     this.src = src;
@@ -36,6 +36,54 @@ export default class ReferenceFixer {
   private replaceSrcs () {
     this.src = this.src.replace(new RegExp('(src=)\/', "g"), `src=${ this.slashes }./`);
     this.src = this.src.replace(new RegExp('(src=")\/', "g"), `src="${ this.slashes }./`);
+  }
+
+}
+
+export class CssReferenceFixer {
+
+  private src: string;
+  private level: number;
+
+  private readonly slashes: string;
+
+  constructor (src: string, level: number) {
+    this.src = src;
+    this.level = level;
+    this.slashes = ("../").repeat(level);
+  }
+
+  public getSrc (): string {
+    this.replaceUrls();
+
+    return this.src;
+  }
+
+  private replaceUrls () {
+    this.src = this.src.replace(new RegExp('(?<=((url\()([\"|\']?)( *)))(\/)(?=((.*)([\"|\']?)\)))', "g"), `${ this.slashes }./`);
+  }
+
+}
+
+export class JavaScriptReferenceFixer {
+
+  private src: string;
+
+  constructor (src: string, level: number) {
+    this.src = src;
+  }
+
+  private getSrc (): string {
+    this.fixGoTo();
+
+    return this.src;
+  }
+
+  private fixGoTo () {
+    // todo
+    // create goto function replacer
+    // this is function Qt inside of client.767d9825.js
+    // var "t" is the goto path
   }
 
 }

@@ -8,7 +8,7 @@ import version from "../version";
 import createManifest from "../utils/manifest";
 import cliProgess, { SingleBar } from "cli-progress";
 import ask from "../utils/ask";
-import ReferenceFixer from "../utils/references";
+import { ReferenceFixer, CssReferenceFixer } from "../utils/references";
 
 export default async function command({ dir, keyfile }: Record<string, string>) {
   
@@ -81,18 +81,27 @@ export default async function command({ dir, keyfile }: Record<string, string>) 
     progressBar.update({ task: file.replace(deployDir + "/", "") })
 
     let data = new TextDecoder().decode(await promises.readFile(file));
-    const contentType = lookupType(file);
+    const 
+      contentType = lookupType(file),
+      level = file.replace(deployDir + "/", "").match(/\//g) !== null ? file.replace(deployDir + "/", "").match(/\//g).length - 1 : 0;
 
     // fixing references
-    if(contentType === "text/html") {
-      
-      const
-        level = file.replace(deployDir + "/", "").match(/\//g) !== null ? file.replace(deployDir + "/", "").match(/\//g).length - 1 : 0,
-        referenceFixer = new ReferenceFixer(data, level);
-        
-      data = referenceFixer.getSrc();
-      data = data.replace(/(?<=((__SAPPER__( *)=( *){)([\s\S]*?)(baseUrl)( *)(:)( *)))(\"( *)\")(?=(([\s\S]*?)};))/gm, "`/${(window.location.href.toString().split(window.location.host)[1]).split(\"/\")[1]}`"); // add base path to the sapper script that includes client
-    
+    switch (contentType) {
+
+      case "text/html":
+        const referenceFixer = new ReferenceFixer(data, level);
+
+        data = referenceFixer.getSrc();
+        data = data.replace(/(?<=((__SAPPER__( *)=( *){)([\s\S]*?)(baseUrl)( *)(:)( *)))(\"( *)\")(?=(([\s\S]*?)};))/gm, "`/${(window.location.href.toString().split(window.location.host)[1]).split(\"/\")[1]}`"); // add base path to the sapper script that includes client
+        break;
+
+      case "text/css":
+        const cssFixer = new CssReferenceFixer(data, level);
+        data = cssFixer.getSrc();
+        break;
+
+      default:
+
     }
 
     let transaction = await client.createTransaction({ data }, keyfileContent);
