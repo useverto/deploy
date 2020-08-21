@@ -91,6 +91,7 @@ export default async function command({ dir, keyfile }: Record<string, string>) 
         referenceFixer = new ReferenceFixer(data, level);
         
       data = referenceFixer.getSrc();
+      data = data.replace(/(?<=((__SAPPER__( *)=( *){)([\s\S]*?)(baseUrl)( *)(:)( *)))(\"( *)\")(?=(([\s\S]*?)};))/gm, "`/${(window.location.href.toString().split(window.location.host)[1]).split(\"/\")[1]}`"); // add base path to the sapper script that includes client
     
     }
 

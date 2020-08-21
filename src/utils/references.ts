@@ -12,11 +12,16 @@ export default class ReferenceFixer {
   }
 
   public getSrc (): string {
+    this.replaceBase();
     this.replaceHrefs();
     this.replaceSrcs();
     this.replaceEmbededScriptSources();
 
     return this.src;
+  }
+
+  private replaceBase () {
+    this.src = this.src.replace("<base href=/ >", "<base href=./ >"); // todo make this relative to level
   }
 
   private replaceHrefs () {
