@@ -6,7 +6,8 @@ TODO
 
 ## First steps
 - Before deploying, make sure that you run `sapper export --entry "your routes with spaces between them"` 
-- Make sure you are deploying the `__sapper__/export` directory. It won't work with others.
+- Make sure you are deploying the `__sapper__/export` directory. It won't work with anything else.
+- **Make sure that you are using RELATIVE urls with the built in sapper `goto` function and with anchor hrefs**
 
 ## Usage
 
