@@ -1,12 +1,16 @@
 {
   "name": "@verto/deploy",
-  "version": "1.0.1-beta",
+  "version": "1.0.2-beta",
   "description": "Deploy Sapper apps on Arweave with ease",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "repository": "https://github.com/useverto/deploy.git",
   "author": "Marton Lederer <martondeveloper@gmail.com>",
   "license": "MIT",
+  "preferGlobal": true,
+  "bin": {
+    "verto": "dist/index.js"
+  },
   "scripts": {
     "build": "tsc"
   },
