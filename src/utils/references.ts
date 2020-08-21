@@ -39,24 +39,6 @@ export class ReferenceFixer {
     this.src = this.src.replace(new RegExp('(src=")\/', "g"), `src="${ this.slashes }./`);
   }
 
-  private fixRemainingHrefs () {
-
-    // this script will be injected to replace hrefs
-    const fixer = `</script>
-      <script>
-        setTimeout(() => {
-          for (const a of document.getElementsByTagName('a')) {
-            if(a.href === undefined || a.href === "" || a.href.split(window.location.host)[1] === undefined) continue;
-            a.href = "/" + window.location.href.split('/')[3] + a.href.split(window.location.host)[1];
-          }
-        }, 30);
-      </script>
-    `;
-    //inject after last script tag
-    this.src = this.src.replace(/(<\/script>)$/, fixer);
-
-  }
-
 }
 
 export class CssReferenceFixer {
