@@ -8,6 +8,7 @@ import version from "../version";
 import createManifest from "../utils/manifest";
 import cliProgess, { SingleBar } from "cli-progress";
 import ask from "../utils/ask";
+import ReferenceFixer from "../utils/references";
 
 export default async function command({ dir, keyfile }: Record<string, string>) {
   
@@ -69,7 +70,8 @@ export default async function command({ dir, keyfile }: Record<string, string>) 
       "s | " + 
       params.value +
       "/" + 
-      params.total;
+      params.total +
+      " files";
     }
   }, cliProgess.Presets.shades_classic);
   progressBar.start(filesToDeploy.length + 1, 0); // +1 is for the manifest
@@ -78,9 +80,19 @@ export default async function command({ dir, keyfile }: Record<string, string>) 
 
     progressBar.update({ task: file.replace(deployDir + "/", "") })
 
-    const
-      data = new TextDecoder().decode(await promises.readFile(file)),
-      contentType = lookupType(file);
+    let data = new TextDecoder().decode(await promises.readFile(file));
+    const contentType = lookupType(file);
+
+    // fixing references
+    if(contentType === "text/html") {
+      
+      const
+        level = file.replace(deployDir + "/", "").match(/\//g) !== null ? file.replace(deployDir + "/", "").match(/\//g).length - 1 : 0,
+        referenceFixer = new ReferenceFixer(data, level);
+        
+      data = referenceFixer.getSrc();
+    
+    }
 
     let transaction = await client.createTransaction({ data }, keyfileContent);
     transaction.addTag("Content-Type", contentType ? contentType : "text/plain");
@@ -99,6 +111,8 @@ export default async function command({ dir, keyfile }: Record<string, string>) 
     progressBar.increment();
 
   }
+
+  progressBar.update({ task: "manifest.json" })
 
   let
     manifest = createManifest(routesWithTransactionID),

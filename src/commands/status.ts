@@ -7,11 +7,11 @@ export default async function command(id: string) {
 
   switch (status) {
     case 400:
-      log("Invalid transaction ID", LogType.error);
+      log("Invalid transaction ID (400)", LogType.error);
       break;
     
     case 500:
-      log("Server error", LogType.error);
+      log("Server error (500)", LogType.error);
       break;
     
     case 200:
@@ -19,6 +19,6 @@ export default async function command(id: string) {
       break;
     
     default:
-      log("Status: pending", LogType.warning);
+      log(`Status: pending (${ status })`, LogType.warning);
   }
 }
