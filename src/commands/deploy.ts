@@ -7,6 +7,7 @@ import client from "../utils/arweave";
 import version from "../version";
 import createManifest from "../utils/manifest";
 import cliProgess, { SingleBar } from "cli-progress";
+import ask from "../utils/ask";
 
 export default async function command({ dir, keyfile }: Record<string, string>) {
   
@@ -20,8 +21,6 @@ export default async function command({ dir, keyfile }: Record<string, string>) 
   if(!fs.lstatSync(deployDir).isDirectory()) return log("Given deploy directory path is not a directory!", LogType.error);
   if(!fs.lstatSync(keyfileLocation).isFile()) return log("Given keyfile location does not point to a file!", LogType.error);
   if(!keyfileLocation.match(/(\.json)$/)) return log("Given keyfile is not a JSON!", LogType.error);
-
-  log("Starting to deploy...\n\n")
 
   let 
     filesToDeploy: string[] = [],
@@ -37,6 +36,14 @@ export default async function command({ dir, keyfile }: Record<string, string>) 
     };
 
   mapFiles(deployDir);
+
+  for(const fl of filesToDeploy) console.log(`\x1b[2m    ${ fl.replace(deployDir + "/", "") }    ${ fs.statSync(fl).size / 1000000.0 }MB\x1b[0m`);
+
+  const confirmation = await ask("\x1b[33m\nAre you sure you want to deploy these files? (yes/no)  \x1b[0m");
+
+  if(confirmation.toLowerCase() !== "yes" && confirmation.toLowerCase() !== "y") return log("Cancelled deployment!", LogType.error);
+
+  log("Starting to deploy...\n\n");
 
   let progressBar = new SingleBar({ 
     barCompleteString: '\u2588',

@@ -4,6 +4,11 @@ CLI tool for deploying [Sapper](https://sapper.svelte.dev) exported applications
 ## Installing
 TODO
 
+## First steps
+- Before deploying, make sure that you run `sapper export --entry "your routes with spaces between them" --basepath fakepath` and also set the subdirectory in server.js to `fakepath`. This will be really important later. See the docs [here](https://sapper.svelte.dev/docs#Base_URLs).
+- Make sure you are deploying the `__sapper__/export` directory. It won't work with others.
+- Check all your links: they should work no matter what directory they are in!
+
 ## Usage
 
 ```sh
