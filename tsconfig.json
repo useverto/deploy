@@ -12,6 +12,7 @@
     "rootDir": "src",
     "baseUrl": ".",
     "removeComments": true,
+    "declaration": true,
     "paths": {
       "*": [
         "node_modules/*",

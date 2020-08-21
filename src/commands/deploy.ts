@@ -78,7 +78,7 @@ export default async function command({ dir, keyfile }: Record<string, string>) 
   
   for(const file of filesToDeploy) {
 
-    progressBar.update({ task: file.replace(deployDir + "/", "") })
+    progressBar.update({ task: file.replace(deployDir + "/", "") });
 
     let data = new TextDecoder().decode(await promises.readFile(file));
     const 
@@ -145,8 +145,8 @@ export default async function command({ dir, keyfile }: Record<string, string>) 
 
     log("\n\nDeployed to Arweave. Your site will be hosted on the URL below:", LogType.success);
     log(`${ "\x1b[36m" }https://arweave.net/${ manifestTransaction.id }`, LogType.log);
-    log("You can check the status of this deployment by running " + "\x1b[1m" + `verto status ${ manifestTransaction.id }`, LogType.warning)
+    log("You can check the status of this deployment by running " + "\x1b[1m" + `verto status ${ manifestTransaction.id }`, LogType.warning);
 
-  }else log("There was an error uploading your site!", LogType.error)
+  }else log("There was an error uploading your site!", LogType.error);
 
 }

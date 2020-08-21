@@ -2,7 +2,9 @@
 CLI tool for deploying [Sapper](https://sapper.svelte.dev) exported applications on Arweave
 
 ## Installing
-TODO
+```yarn add global @verto/deploy```
+or
+```npm i -g @verto/deploy```
 
 ## First steps
 - Before deploying, make sure that you run `sapper export --entry "your routes with spaces between them"` 
