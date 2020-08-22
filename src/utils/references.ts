@@ -48,6 +48,7 @@ export class ReferenceFixer {
         /* mutations */
         const observer = new MutationObserver(updateReferences);
         function updateReferences (mutationsList) {
+          // TODO try latency
           for(const record of mutationsList) {
             if(record.type === "attributes") {
               if(record.attributeName === null) continue;
@@ -71,7 +72,7 @@ export class ReferenceFixer {
             }
           }
         }
-        observer.observe(document.body, { attributes: true, childList: true, subtree: true });
+        observer.observe(document.documentElement, { attributes: true, childList: true, subtree: true });
         /* popstate */
         (function(history){
           let pushState = history.pushState;
