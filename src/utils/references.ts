@@ -138,16 +138,14 @@ export class JavaScriptReferenceFixer {
   }
 
   private fixGoTo () {
+    const pinPoint = /(const ([^s\\]*)( *)(=)( *)([^s\\]*)(\(new URL\(([^s\\]*),( *)document.baseURI\)\);return ([^s\\]*)))(.*)(\()([^\s\\]*)\[([^\s\\]*)(\.replaceState)( *)\?( *)"replaceState"( *):( *)"pushState"]/;
+    if(this.src.match(pinPoint) === null || this.src.match(pinPoint).length === 0) return;
     const
-      navigateRegex = /(async function )(([^\s\\])([^\s\\]))( *)\(([^\s\\]),( *)([^\s\\]),( *)([^\s\\]),( *)([^\s\\])\)( *)(\{)(?=([\n| ]*)(if)( *)\(([^\s\\])\)( *)([^\s\\])([^\s\\])( *)=( *)([^\s\\])( *)(;))/gm, // regex to match the navigate function's start
-      firstVariableRegex = /(?<=((async function )(([^\s\\])([^\s\\]))( *)\())([^\s\\])(?=(,( *)([^\s\\]),( *)([^\s\\]),( *)([^\s\\])\)( *)(\{)))/;
-
-    if(this.src.match(navigateRegex) === null || this.src.match(navigateRegex).length === 0) return;
-    const functionMatch = this.src.match(navigateRegex)[0];
-    if(functionMatch.match(firstVariableRegex) == null || functionMatch.match(firstVariableRegex).length === 0) return;
-    const firstVariableMatch = functionMatch.match(firstVariableRegex)[0];
-
-    this.src = this.src.replace(navigateRegex, `${ functionMatch }\nif(!${ firstVariableMatch }.href.includes((window.location.href.toString().split(window.location.host)[1]).split("/")[1])) {\n ${ firstVariableMatch }.href = window.location.href.split(window.location.host)[0] + window.location.host + "/" + (window.location.href.toString().split(window.location.host)[1]).split("/")[1] + ${ firstVariableMatch }.page.path;\n ${ firstVariableMatch }.page.path = "/" + (window.location.href.toString().split(window.location.host)[1]).split("/")[1] + ${ firstVariableMatch }.page.path; \nconsole.log(${ firstVariableMatch }); }`);
+      pointContent = this.src.match(pinPoint)[0],
+      hrefVariablePinPoint = /(?<=(const ([^s\\]*)( *)=([^s\\]*)\(new URL\())([^s\\]*)(?=,)/;
+    if(pointContent.match(hrefVariablePinPoint) === null || pointContent.match(hrefVariablePinPoint).length === 0) return;
+    const hrefVarName = pointContent.match(hrefVariablePinPoint)[0];
+    this.src = this.src.replace(pinPoint, `if(!${ hrefVarName }.includes((window.location.href.toString().split(window.location.host)[1]).split("/")[1])){${ hrefVarName }="/" + (${ hrefVarName }.startsWith("/") ? (window.location.href.toString().split(window.location.host)[1]).split("/")[1] : ((window.location.href.toString().split(window.location.host)[1]).split("/")[1] + "/")) + ${ hrefVarName };}${ pointContent }`)
   }
 
 }
