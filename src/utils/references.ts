@@ -44,18 +44,26 @@ export class ReferenceFixer {
     // this script will be injected to replace hrefs
     const fixer = `</script>
       <script>
-        setTimeout(() => {
-          for (const a of document.getElementsByTagName('a')) {
-            if(a.href === undefined || a.href === "" || a.href.split(window.location.host)[1] === undefined) continue;
-            if(a.href.includes(window.location.href.split('/')[3])) continue;
-            a.href = "/" + window.location.href.split('/')[3] + a.href.split(window.location.host)[1];
+        /*////// VERTO DEPLOY SCRIPT ///////*/
+        const observer = new MutationObserver(updateReferences);
+        function updateReferences (mutationsList) {
+          for(const record of mutationsList) {
+            if(record.type !== "attributes" || record.attributeName === null) continue;
+            if(record.target === null || record.target === undefined) continue;
+            if(record.attributeName === "href") {
+              if(record.target.href === undefined || record.target.href === "" || record.target.href.split(window.location.host)[1] === undefined) continue;
+              if(record.target.href.includes(window.location.href.split('/')[3])) continue;
+              record.target.href = "/" + window.location.href.split('/')[3] + record.target.href.split(window.location.host)[1];
+            }
+            if(record.attributeName === "src") {
+              if(record.target.src === undefined || record.target.src === "" || record.target.src.split(window.location.host)[1] === undefined) continue;
+              if(record.target.src.includes(window.location.href.split('/')[3])) continue;
+              record.target.src = "/" + window.location.href.split('/')[3] + record.target.src.split(window.location.host)[1];
+            }
           }
-          for (const el of document.body.getElementsByTagName('*')) {
-            if(el.src === undefined || el.src === "" || el.src.split(window.location.host)[1] === undefined) continue;
-            if(el.src.includes(window.location.href.split('/')[3])) continue;
-            el.src = "/" + window.location.href.split('/')[3] + el.src.split(window.location.host)[1];
-          }
-        }, 30);
+        }
+        observer.observe(document.body, { attributes: true, childList: true, subtree: true });
+        /*////// VERTO DEPLOY SCRIPT END ///////*/
       </script>
     `;
     //inject after last script tag
