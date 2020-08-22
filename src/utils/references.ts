@@ -44,22 +44,27 @@ export class ReferenceFixer {
     // this script will be injected to replace hrefs
     const fixer = `</script>
       <script>
-        /*////// VERTO DEPLOY SCRIPT ///////*/
+        /*////// VERTO DEPLOY SCRIPTS ///////*/
         /* mutations */
         const observer = new MutationObserver(updateReferences);
         function updateReferences (mutationsList) {
           for(const record of mutationsList) {
-            if(record.type !== "attributes" || record.attributeName === null) continue;
-            if(record.target === null || record.target === undefined) continue;
-            if(record.attributeName === "href") {
-              if(record.target.href === undefined || record.target.href === "" || record.target.href.split(window.location.host)[1] === undefined) continue;
-              if(record.target.href.includes(window.location.href.split('/')[3])) continue;
-              record.target.href = "/" + window.location.href.split('/')[3] + record.target.href.split(window.location.host)[1];
-            }
-            if(record.attributeName === "src") {
-              if(record.target.src === undefined || record.target.src === "" || record.target.src.split(window.location.host)[1] === undefined) continue;
-              if(record.target.src.includes(window.location.href.split('/')[3])) continue;
-              record.target.src = "/" + window.location.href.split('/')[3] + record.target.src.split(window.location.host)[1];
+            if(record.type === "attributes") {
+              if(record.attributeName === null) continue;
+              if(record.target === null || record.target === undefined) continue;
+              if(record.attributeName === "href") {
+                if(record.target.href === undefined || record.target.href === "" || record.target.href.split(window.location.host)[1] === undefined) continue;
+                if(record.target.href.includes(window.location.href.split('/')[3])) continue;
+                record.target.href = "/" + window.location.href.split('/')[3] + record.target.href.split(window.location.host)[1];
+              }
+              if(record.attributeName === "src") {
+                if(record.target.src === undefined || record.target.src === "" || record.target.src.split(window.location.host)[1] === undefined) continue;
+                if(record.target.src.includes(window.location.href.split('/')[3])) continue;
+                record.target.src = "/" + window.location.href.split('/')[3] + record.target.src.split(window.location.host)[1];
+              }
+            }else if (record.type === "childList") {
+              if(record.addedNodes === undefined || record.addedNodes.length === 0) continue;
+              // check if anchor and add event listener to replace
             }
           }
         }
@@ -88,6 +93,14 @@ export class ReferenceFixer {
             }
           }, 30); /* timeout in case of latency */
         };
+        /* hover */
+        for(const anchorEl of document.querySelectorAll('a')) {
+          anchorEl.addEventListener("mouseover", ({ target }) => {
+            if(target.href === undefined || target.href === "" || target.href.split(window.location.host)[1] === undefined) return;
+            if(target.href.includes(window.location.href.split('/')[3])) return;
+            target.href = "/" + window.location.href.split('/')[3] + target.href.split(window.location.host)[1];
+          });
+        } 
         /*////// VERTO DEPLOY SCRIPT END ///////*/
       </script>
     `;
