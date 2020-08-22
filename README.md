@@ -1,6 +1,8 @@
 # Verto deploy
 CLI tool for deploying [Sapper](https://sapper.svelte.dev) exported applications on Arweave
 
+> This project needs help. It does work, but it probably needs some adjustments to work with any Sapper app. I only tested it with [useverto/verto](https://github.com/useverto/verto).
+
 ## Installing
 ```yarn add global @verto/deploy```
 or
@@ -9,7 +11,6 @@ or
 ## First steps
 - Before deploying, make sure that you run `sapper export --entry "your routes with spaces between them"` 
 - Make sure you are deploying the `__sapper__/export` directory. It won't work with anything else.
-- **Make sure that you are using RELATIVE urls with the built in sapper `goto` function and with anchor hrefs**
 
 ## Usage
 
