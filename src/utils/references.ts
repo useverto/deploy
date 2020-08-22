@@ -64,7 +64,10 @@ export class ReferenceFixer {
               }
             }else if (record.type === "childList") {
               if(record.addedNodes === undefined || record.addedNodes.length === 0) continue;
-              // check if anchor and add event listener to replace
+              for(const elem of record.addedNodes) {
+                if(elem.tagName === null || elem.tagName === undefined) continue;
+                if(elem.tagName.toLowerCase() === 'a') addHrefReplaceEventListener(elem);
+              }
             }
           }
         }
@@ -95,12 +98,15 @@ export class ReferenceFixer {
         };
         /* hover */
         for(const anchorEl of document.querySelectorAll('a')) {
-          anchorEl.addEventListener("mouseover", ({ target }) => {
+          addHrefReplaceEventListener(anchorEl);
+        }
+        function addHrefReplaceEventListener(elem) {
+          elem.addEventListener("mouseover", ({ target }) => {
             if(target.href === undefined || target.href === "" || target.href.split(window.location.host)[1] === undefined) return;
             if(target.href.includes(window.location.href.split('/')[3])) return;
             target.href = "/" + window.location.href.split('/')[3] + target.href.split(window.location.host)[1];
           });
-        } 
+        }
         /*////// VERTO DEPLOY SCRIPT END ///////*/
       </script>
     `;
