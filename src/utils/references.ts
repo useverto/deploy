@@ -45,6 +45,7 @@ export class ReferenceFixer {
     const fixer = `</script>
       <script>
         /*////// VERTO DEPLOY SCRIPT ///////*/
+        /* mutations */
         const observer = new MutationObserver(updateReferences);
         function updateReferences (mutationsList) {
           for(const record of mutationsList) {
@@ -63,6 +64,30 @@ export class ReferenceFixer {
           }
         }
         observer.observe(document.body, { attributes: true, childList: true, subtree: true });
+        /* popstate */
+        (function(history){
+          var pushState = history.pushState;
+          history.pushState = function(state) {
+            if (typeof history.onpushstate == "function") {
+              history.onpushstate({state: state});
+            }
+            return pushState.apply(history, arguments);
+          };
+        })(window.history);
+        window.onpopstate = history.onpushstate = function(e) { 
+          setTimeout(() => {
+            for (const a of document.getElementsByTagName('a')) {
+              if(a.href === undefined || a.href === "" || a.href.split(window.location.host)[1] === undefined) continue;
+              if(a.href.includes(window.location.href.split('/')[3])) continue;
+              a.href = "/" + window.location.href.split('/')[3] + a.href.split(window.location.host)[1];
+            }
+            for (const el of document.body.getElementsByTagName('*')) {
+              if(el.src === undefined || el.src === "" || el.src.split(window.location.host)[1] === undefined) continue;
+              if(el.src.includes(window.location.href.split('/')[3])) continue;
+              el.src = "/" + window.location.href.split('/')[3] + el.src.split(window.location.host)[1];
+            }
+          }, 30); /* timeout in case of latency */
+        };
         /*////// VERTO DEPLOY SCRIPT END ///////*/
       </script>
     `;
