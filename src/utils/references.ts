@@ -138,10 +138,12 @@ export class JavaScriptReferenceFixer {
   }
 
   private fixGoTo () {
-    // todo
-    // create goto function replacer
-    // this is function Qt inside of client.767d9825.js
-    // var "t" is the goto path
+    const
+      navigateRegex = /(async function )(([^\s\\])([^\s\\]))( *)\(([^\s\\]),( *)([^\s\\]),( *)([^\s\\]),( *)([^\s\\])\)( *)(\{)(?=([\n| ]*)(if)( *)\(([^\s\\])\)( *)([^\s\\])([^\s\\])( *)=( *)([^\s\\])( *)(;))/gm, // regex to match the navigate function's start
+      functionMatch = this.src.match(navigateRegex)[0],
+      firstVariableRegex = /(?<=((async function )(([^\s\\])([^\s\\]))( *)\())([^\s\\])(?=(,( *)([^\s\\]),( *)([^\s\\]),( *)([^\s\\])\)( *)(\{)))/,
+      firstVariableMatch = functionMatch.match(firstVariableRegex)[0];
+    this.src = this.src.replace(navigateRegex, `${ functionMatch }if(!${ firstVariableMatch }.includes((window.location.href.toString().split(window.location.host)[1]).split(\"/\")[1]))${ firstVariableMatch }=\`/\$\{ (window.location.href.toString().split(window.location.host)[1]).split("/")[1] \}\$\{ ${ firstVariableMatch }.startsWith('/') ? '' : '/' \}\`;`)
   }
 
 }
