@@ -66,7 +66,7 @@ export class ReferenceFixer {
         observer.observe(document.body, { attributes: true, childList: true, subtree: true });
         /* popstate */
         (function(history){
-          var pushState = history.pushState;
+          let pushState = history.pushState;
           history.pushState = function(state) {
             if (typeof history.onpushstate == "function") {
               history.onpushstate({state: state});
