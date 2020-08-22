@@ -127,11 +127,11 @@ export class JavaScriptReferenceFixer {
 
   private src: string;
 
-  constructor (src: string, level: number) {
+  constructor (src: string) {
     this.src = src;
   }
 
-  private getSrc (): string {
+  public getSrc (): string {
     this.fixGoTo();
 
     return this.src;
@@ -140,10 +140,14 @@ export class JavaScriptReferenceFixer {
   private fixGoTo () {
     const
       navigateRegex = /(async function )(([^\s\\])([^\s\\]))( *)\(([^\s\\]),( *)([^\s\\]),( *)([^\s\\]),( *)([^\s\\])\)( *)(\{)(?=([\n| ]*)(if)( *)\(([^\s\\])\)( *)([^\s\\])([^\s\\])( *)=( *)([^\s\\])( *)(;))/gm, // regex to match the navigate function's start
-      functionMatch = this.src.match(navigateRegex)[0],
-      firstVariableRegex = /(?<=((async function )(([^\s\\])([^\s\\]))( *)\())([^\s\\])(?=(,( *)([^\s\\]),( *)([^\s\\]),( *)([^\s\\])\)( *)(\{)))/,
-      firstVariableMatch = functionMatch.match(firstVariableRegex)[0];
-    this.src = this.src.replace(navigateRegex, `${ functionMatch }if(!${ firstVariableMatch }.includes((window.location.href.toString().split(window.location.host)[1]).split(\"/\")[1]))${ firstVariableMatch }=\`/\$\{ (window.location.href.toString().split(window.location.host)[1]).split("/")[1] \}\$\{ ${ firstVariableMatch }.startsWith('/') ? '' : '/' \}\$\{ ${ firstVariableMatch } \}\`;`);
+      firstVariableRegex = /(?<=((async function )(([^\s\\])([^\s\\]))( *)\())([^\s\\])(?=(,( *)([^\s\\]),( *)([^\s\\]),( *)([^\s\\])\)( *)(\{)))/;
+
+    if(this.src.match(navigateRegex) === null || this.src.match(navigateRegex).length === 0) return;
+    const functionMatch = this.src.match(navigateRegex)[0];
+    if(functionMatch.match(firstVariableRegex) == null || functionMatch.match(firstVariableRegex).length === 0) return;
+    const firstVariableMatch = functionMatch.match(firstVariableRegex)[0];
+
+    this.src = this.src.replace(navigateRegex, `${ functionMatch }\nif(!${ firstVariableMatch }.href.includes((window.location.href.toString().split(window.location.host)[1]).split("/")[1])) {\n ${ firstVariableMatch }.href = window.location.href.split(window.location.host)[0] + window.location.host + "/" + (window.location.href.toString().split(window.location.host)[1]).split("/")[1] + ${ firstVariableMatch }.page.path;\n ${ firstVariableMatch }.page.path = "/" + (window.location.href.toString().split(window.location.host)[1]).split("/")[1] + ${ firstVariableMatch }.page.path; \nconsole.log(${ firstVariableMatch }); }`);
   }
 
 }

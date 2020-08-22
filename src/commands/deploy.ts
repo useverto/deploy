@@ -8,7 +8,7 @@ import version from "../version";
 import createManifest from "../utils/manifest";
 import cliProgess, { SingleBar } from "cli-progress";
 import ask from "../utils/ask";
-import { ReferenceFixer, CssReferenceFixer } from "../utils/references";
+import { ReferenceFixer, CssReferenceFixer, JavaScriptReferenceFixer } from '../utils/references'
 
 export default async function command({ dir, keyfile }: Record<string, string>) {
   
@@ -98,6 +98,14 @@ export default async function command({ dir, keyfile }: Record<string, string>) 
       case "text/css":
         const cssFixer = new CssReferenceFixer(data, level);
         data = cssFixer.getSrc();
+        break;
+
+      case "application/javascript":
+        const pieces = file.replace(deployDir + "/", "").split("/");
+        if(pieces[pieces.length - 1].includes("client")) {
+          const jsFixer = new JavaScriptReferenceFixer(data);
+          data = jsFixer.getSrc();
+        }
         break;
 
       default:
