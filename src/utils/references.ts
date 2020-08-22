@@ -85,7 +85,7 @@ export class CssReferenceFixer {
   }
 
   private replaceUrls () {
-    this.src = this.src.replace(new RegExp('(?<=((url\()([\"|\']?)( *)))(\/)(?=((.*)([\"|\']?)\)))', "g"), this.level ? this.slashes : "./");
+    this.src = this.src.replace(/(?<=(url\((["|']?)( *)))(\/)(?=(([^ ])*)(["|']?)(\)))/g, this.level ? this.slashes : "./");
   }
 
 }
