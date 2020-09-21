@@ -161,11 +161,11 @@ export class JavaScriptReferenceFixer {
 
   private replaceHrefs () {
     for(const route of this.routes) {
-      const
-        routeWithoutSlash = route.replace(/(^\/)/, ""),
-        routeInText = this.src.match(new RegExp(`("|'|\`)((\/?)${ routeWithoutSlash })`, "g"));
-      if(routeInText === null) continue;
-      for(const routeMatch of routeInText) this.src = this.src.replace(routeMatch, `"/"+window.location.href.split('/')[3]+${ routeMatch[0] }${ routeMatch[1] === "/" ? "" : "/" }${ routeWithoutSlash }`);
+      const routeWithoutSlash = route.replace(/(^\/)/, "");
+        
+      this.src = this.src.replace(new RegExp(`(")((\/?)${ routeWithoutSlash })(?=[\/|"|?])`, "g"), `"/"+window.location.href.split('/')[3]+"/${ routeWithoutSlash }`);
+      this.src = this.src.replace(new RegExp(`(')((\/?)${ routeWithoutSlash })(?=[\/|'|?])`, "g"), `"/"+window.location.href.split('/')[3]+'/${ routeWithoutSlash }`);
+      this.src = this.src.replace(new RegExp(`(\`)((\/?)${ routeWithoutSlash })(?=[\/|\`|?])`, "g"), `"/"+window.location.href.split('/')[3]+\`/${ routeWithoutSlash }`);
     }
   }
 
