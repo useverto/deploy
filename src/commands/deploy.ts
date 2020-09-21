@@ -25,7 +25,8 @@ export default async function command({ dir, keyfile }: Record<string, string>) 
 
   let 
     filesToDeploy: string[] = [],
-    routesWithTransactionID: Route[] = [];
+    routesWithTransactionID: Route[] = [],
+    htmlRoutes: string[] = [];
 
   const 
     keyfileContent = JSON.parse(new TextDecoder().decode(await promises.readFile(keyfileLocation))),
@@ -38,7 +39,10 @@ export default async function command({ dir, keyfile }: Record<string, string>) 
 
   mapFiles(deployDir);
 
-  for(const fl of filesToDeploy) console.log(`\x1b[2m    ${ fl.replace(deployDir + "/", "") }    ${ fs.statSync(fl).size / 1000000.0 }MB\x1b[0m`);
+  for(const fl of filesToDeploy) {
+    console.log(`\x1b[2m    ${ fl.replace(deployDir + "/", "") }    ${ fs.statSync(fl).size / 1000000.0 }MB\x1b[0m`);
+    if(lookupType(fl) === "text/html") htmlRoutes.push(fl.replace(/(\.html)$/, ""));
+  }
 
   const confirmation = await ask("\x1b[33m\nAre you sure you want to deploy these files? (yes/no)  \x1b[0m");
 
@@ -103,7 +107,7 @@ export default async function command({ dir, keyfile }: Record<string, string>) 
       case "application/javascript":
         const pieces = file.replace(deployDir + "/", "").split("/");
         if(pieces[pieces.length - 1].includes("client")) {
-          const jsFixer = new JavaScriptReferenceFixer(data);
+          const jsFixer = new JavaScriptReferenceFixer(data, htmlRoutes);
           data = jsFixer.getSrc();
         }
         break;

@@ -48,7 +48,6 @@ export class ReferenceFixer {
         /* mutations */
         const observer = new MutationObserver(updateReferences);
         function updateReferences (mutationsList) {
-          // TODO try latency
           for(const record of mutationsList) {
             if(record.type === "attributes") {
               if(record.attributeName === null) continue;
@@ -146,26 +145,28 @@ export class CssReferenceFixer {
 export class JavaScriptReferenceFixer {
 
   private src: string;
+  private routes: string[];
 
-  constructor (src: string) {
+  // routes are needed to check for references in js
+  constructor (src: string, routes: string[]) {
     this.src = src;
+    this.routes = routes;
   }
 
   public getSrc (): string {
-    this.fixGoTo();
+    this.replaceHrefs();
 
     return this.src;
   }
 
-  private fixGoTo () {
-    const pinPoint = /(const ([^s\\]*)( *)(=)( *)([^s\\]*)(\(new URL\(([^s\\]*),( *)document.baseURI\)\);return ([^s\\]*)))(.*)(\()([^\s\\]*)\[([^\s\\]*)(\.replaceState)( *)\?( *)"replaceState"( *):( *)"pushState"]/;
-    if(this.src.match(pinPoint) === null || this.src.match(pinPoint).length === 0) return;
-    const
-      pointContent = this.src.match(pinPoint)[0],
-      hrefVariablePinPoint = /(?<=(const ([^s\\]*)( *)=([^s\\]*)\(new URL\())([^s\\]*)(?=,)/;
-    if(pointContent.match(hrefVariablePinPoint) === null || pointContent.match(hrefVariablePinPoint).length === 0) return;
-    const hrefVarName = pointContent.match(hrefVariablePinPoint)[0];
-    this.src = this.src.replace(pinPoint, `if(!${ hrefVarName }.includes((window.location.href.toString().split(window.location.host)[1]).split("/")[1])){${ hrefVarName }="/" + (${ hrefVarName }.startsWith("/") ? (window.location.href.toString().split(window.location.host)[1]).split("/")[1] : ((window.location.href.toString().split(window.location.host)[1]).split("/")[1] + "/")) + ${ hrefVarName };}${ pointContent }`)
+  private replaceHrefs () {
+    for(const route of this.routes) {
+      const
+        routeWithoutSlash = route.replace(/(^\/)/, ""),
+        routeInText = this.src.match(new RegExp(`("|'|\`)((\/?)${ routeWithoutSlash })`, "g"));
+      if(routeInText === null) continue;
+      for(const routeMatch of routeInText) this.src = this.src.replace(routeMatch, `"/"+window.location.href.split('/')[3]+${ routeMatch[0] }${ routeMatch[1] === "/" ? "" : "/" }${ routeWithoutSlash }`);
+    }
   }
 
 }
