@@ -21,7 +21,7 @@ Shows the help menu
 
 ### Deploy a folder
 ```sh
-verto deploy --dir <Sapper project directory to deploy> --keyfile <path toArweave keyfile>
+vdeploy deploy --dir <Sapper project directory to deploy> --keyfile <path toArweave keyfile>
 ```
 This deploys your Sapper project. What it does:
 - Fixes links and hrefs (so it works with the arweave transaction id subfolder)
@@ -30,13 +30,13 @@ This deploys your Sapper project. What it does:
 
 ### Get balance
 ```sh
-verto balance --keyfile <path toArweave keyfile>
+vdeploy balance --keyfile <path toArweave keyfile>
 ```
 Helper command: returns your arweave balance
 
 ### Get transaction status
 ```sh
-verto status <id>
+vdeploy status <id>
 ```
 Helper command: returns the status of the given transaction ID
 

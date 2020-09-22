@@ -5,7 +5,7 @@ import statusCommand from "./commands/status";
 import balanceCommand from "./commands/balance";
 import version from "./version";
 
-const prog = sade("verto");
+const prog = sade("vdeploy");
 
 prog
   .version(version)
