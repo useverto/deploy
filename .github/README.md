@@ -18,7 +18,7 @@ or
 ## Usage
 
 ```sh
-verto help
+vdeploy help
 ```
 
 Shows the help menu
