@@ -132,9 +132,17 @@ export class JavaScriptReferenceFixer {
     }
   }
 
+  // ignore is necessary in some of the next lines
+  // do not remove it
   private replaceRootHrefs() {
     this.src = this.src.replace(
-      new RegExp('(?<=("href",( ?)))("/")', "g"),
+      // prettier-ignore
+      new RegExp('(?<=(("|\'|`)href("|\'|`),( ?)))(("|\'|`)\/("|\'|`))', "g"),
+      '"/"+window.location.href.split("/")[3]+"/"'
+    );
+    this.src = this.src.replace(
+      // prettier-ignore
+      new RegExp('(?<=((([A-Z]|[a-z]|[_])*)\())("|\'|`)\/("|\'|`)(?=\))', "g"),
       '"/"+window.location.href.split("/")[3]+"/"'
     );
   }
