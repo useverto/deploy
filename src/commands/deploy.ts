@@ -58,10 +58,12 @@ export default async function command({ dir, keyfile }: Record<string, string>) 
     format (options, params, payload): string {
       const 
         completeSize = Math.round(params.progress * options.barsize),
-        incompleteSize = options.barsize - completeSize;
+        incompleteSize = options.barsize - completeSize,
+        longestFileLength = filesToDeploy.reduce((a, b) => a.replace(deployDir + "/", "").length > b.replace(deployDir + "/", "").length ? a.replace(deployDir + "/", "") : b.replace(deployDir + "/", "")).length;
 
       return "\x1b[2m" +
       payload.task +
+      (payload.task !== undefined ? (" ").repeat(longestFileLength - payload.task.length) : "") +
       "\x1b[0m " +
       options.barCompleteString.substr(0, completeSize) + 
       options.barIncompleteString.substr(0, incompleteSize) +
