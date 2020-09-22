@@ -113,20 +113,28 @@ export class JavaScriptReferenceFixer {
     return this.src;
   }
 
+  // ignore is necessary in some of the next lines
+  // do not remove it
   private replaceHrefs() {
     for (const route of this.routes) {
       const routeWithoutSlash = route.replace(/(^\/)/, "");
 
       this.src = this.src.replace(
-        new RegExp(`(")((\/?)${routeWithoutSlash})(?=[\/|"|?])`, "g"),
+        // prettier-ignore
+        new RegExp(`(?<!("\/"\+window\.location\.href\.split\('\/'\)\[3\]\+))(")((\/?)${routeWithoutSlash})(?=[\/|"|?])`, "g"),
+        // prettier-ignore
         `"/"+window.location.href.split('/')[3]+"/${routeWithoutSlash}`
       );
       this.src = this.src.replace(
-        new RegExp(`(')((\/?)${routeWithoutSlash})(?=[\/|'|?])`, "g"),
+        // prettier-ignore
+        new RegExp(`(?<!("\/"\+window\.location\.href\.split\('\/'\)\[3\]\+))(')((\/?)${routeWithoutSlash})(?=[\/|'|?])`, "g"),
+        // prettier-ignore
         `"/"+window.location.href.split('/')[3]+'/${routeWithoutSlash}`
       );
       this.src = this.src.replace(
-        new RegExp(`(\`)((\/?)${routeWithoutSlash})(?=[\/|\`|?])`, "g"),
+        // prettier-ignore
+        new RegExp(`(?<!("\/"\+window\.location\.href\.split\('\/'\)\[3\]\+))(\`)((\/?)${routeWithoutSlash})(?=[\/|\`|?])`, "g"),
+        // prettier-ignore
         `"/"+window.location.href.split('/')[3]+\`/${routeWithoutSlash}`
       );
     }
@@ -137,13 +145,15 @@ export class JavaScriptReferenceFixer {
   private replaceRootHrefs() {
     this.src = this.src.replace(
       // prettier-ignore
-      new RegExp('(?<=(("|\'|`)href("|\'|`),( ?)))(("|\'|`)\/("|\'|`))', "g"),
-      '"/"+window.location.href.split("/")[3]+"/"'
+      new RegExp('(?<=(("|\'|`)href("|\'|`),( ?)))(("|\'|`)\/("|\'|`))(?=\\\))', "g"),
+      // prettier-ignore
+      '"/"+window.location.href.split(\'/\')[3]+"/"'
     );
     this.src = this.src.replace(
       // prettier-ignore
-      new RegExp('(?<=((([A-Z]|[a-z]|[_])*)\())("|\'|`)\/("|\'|`)(?=\))', "g"),
-      '"/"+window.location.href.split("/")[3]+"/"'
+      new RegExp(`(?<!("\/"\+window\.location\.href\.split\('\/'\)\[3\]\+))(?<=((;|,)(([A-Z]|[a-z]|[_])*)\())("|'|\`)\/("|'|\`)(?=\))`, "g"),
+      // prettier-ignore
+      '"/"+window.location.href.split(\'/\')[3]+"/"'
     );
   }
 }
