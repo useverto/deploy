@@ -41,7 +41,7 @@ export default async function command({ dir, keyfile }: Record<string, string>) 
 
   for(const fl of filesToDeploy) {
     console.log(`\x1b[2m    ${ fl.replace(deployDir + "/", "") }    ${ fs.statSync(fl).size / 1000000.0 }MB\x1b[0m`);
-    if(lookupType(fl) === "text/html") htmlRoutes.push(fl.replace(/(\.html)$/, ""));
+    if(lookupType(fl) === "text/html") htmlRoutes.push(fl.replace(deployDir + "/", "").replace(/((\/?)index\.html)$/, ""));
   }
 
   const confirmation = await ask("\x1b[33m\nAre you sure you want to deploy these files? (yes/no)  \x1b[0m");
@@ -105,11 +105,8 @@ export default async function command({ dir, keyfile }: Record<string, string>) 
         break;
 
       case "application/javascript":
-        const pieces = file.replace(deployDir + "/", "").split("/");
-        if(pieces[pieces.length - 1].includes("client")) {
-          const jsFixer = new JavaScriptReferenceFixer(data, htmlRoutes);
-          data = jsFixer.getSrc();
-        }
+        const jsFixer = new JavaScriptReferenceFixer(data, htmlRoutes);
+        data = jsFixer.getSrc();
         break;
 
       default:
