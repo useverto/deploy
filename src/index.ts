@@ -7,24 +7,23 @@ import version from "./version";
 
 const prog = sade("vdeploy");
 
-prog
-  .version(version)
+prog.version(version);
 
 prog
   .command("deploy")
   .describe("Deploy the given Sapper project on Arweave")
   .option("-d, --dir", "Deploy directory")
   .option("-k, --keyfile", "Link keyfile")
-  .action(deployCommand)
+  .action(deployCommand);
 
 prog
   .command("status <id>")
   .describe("Return the status of the given transaction from Arweave")
-  .action(statusCommand)
+  .action(statusCommand);
 
 prog
   .command("balance <keyfile>")
   .describe("Get Arweave balance for the given keyfile")
-  .action(balanceCommand)
+  .action(balanceCommand);
 
 prog.parse(process.argv);

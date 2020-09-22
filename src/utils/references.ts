@@ -1,17 +1,16 @@
 export class ReferenceFixer {
-
   private src: string;
   private level: number;
 
   private readonly slashes: string;
 
-  constructor (src: string, level: number) {
+  constructor(src: string, level: number) {
     this.src = src;
     this.level = level;
-    this.slashes = ("../").repeat(level);
+    this.slashes = "../".repeat(level);
   }
 
-  public getSrc (): string {
+  public getSrc(): string {
     this.replaceBase();
     this.replaceHrefs();
     this.replaceSrcs();
@@ -21,26 +20,43 @@ export class ReferenceFixer {
     return this.src;
   }
 
-  private replaceBase () {
-    this.src = this.src.replace("<base href=/ >", `<base href=${ this.level ? this.slashes : "./" } >`); // todo make this relative to level
+  private replaceBase() {
+    this.src = this.src.replace(
+      "<base href=/ >",
+      `<base href=${this.level ? this.slashes : "./"} >`
+    ); // todo make this relative to level
   }
 
-  private replaceHrefs () {
-    this.src = this.src.replace(new RegExp('(href=)\/', "g"), `href=${ this.level ? this.slashes : "./" }`);
-    this.src = this.src.replace(new RegExp('(href=")\/', "g"), `href="${ this.level ? this.slashes : "./" }`);
+  private replaceHrefs() {
+    this.src = this.src.replace(
+      new RegExp("(href=)/", "g"),
+      `href=${this.level ? this.slashes : "./"}`
+    );
+    this.src = this.src.replace(
+      new RegExp('(href=")/', "g"),
+      `href="${this.level ? this.slashes : "./"}`
+    );
   }
 
-  private replaceEmbededScriptSources () {
-    this.src = this.src.replace(/(?<=(<script\b[^>]*>([\s\S]*?))([\"|\'|\`]))(\/)(?=(.*)(\.js))(?=(([\s\S]*?)(<\/script>)))/gm, this.level ? this.slashes : "./");
+  private replaceEmbededScriptSources() {
+    this.src = this.src.replace(
+      /(?<=(<script\b[^>]*>([\s\S]*?))([\"|\'|\`]))(\/)(?=(.*)(\.js))(?=(([\s\S]*?)(<\/script>)))/gm,
+      this.level ? this.slashes : "./"
+    );
   }
 
-  private replaceSrcs () {
-    this.src = this.src.replace(new RegExp('(src=)\/', "g"), `src=${ this.level ? this.slashes : "./" }`);
-    this.src = this.src.replace(new RegExp('(src=")\/', "g"), `src="${ this.level ? this.slashes : "./" }`);
+  private replaceSrcs() {
+    this.src = this.src.replace(
+      new RegExp("(src=)/", "g"),
+      `src=${this.level ? this.slashes : "./"}`
+    );
+    this.src = this.src.replace(
+      new RegExp('(src=")/', "g"),
+      `src="${this.level ? this.slashes : "./"}`
+    );
   }
 
-  private fixRemainingHrefsAndSrcs () {
-
+  private fixRemainingHrefsAndSrcs() {
     // this script will be injected to replace hrefs
     const fixer = `</script>
       <script>
@@ -112,61 +128,67 @@ export class ReferenceFixer {
     `;
     //inject after last script tag
     this.src = this.src.replace(/(<\/script>)( *)$/, fixer);
-
   }
-
 }
 
 export class CssReferenceFixer {
-
   private src: string;
   private level: number;
 
   private readonly slashes: string;
 
-  constructor (src: string, level: number) {
+  constructor(src: string, level: number) {
     this.src = src;
     this.level = level;
-    this.slashes = ("../").repeat(level);
+    this.slashes = "../".repeat(level);
   }
 
-  public getSrc (): string {
+  public getSrc(): string {
     this.replaceUrls();
 
     return this.src;
   }
 
-  private replaceUrls () {
-    this.src = this.src.replace(/(?<=(url\((["|']?)( *)))(\/)(?=(([^ ])*)(["|']?)(\)))/g, this.level ? this.slashes : "./");
+  private replaceUrls() {
+    this.src = this.src.replace(
+      /(?<=(url\((["|']?)( *)))(\/)(?=(([^ ])*)(["|']?)(\)))/g,
+      this.level ? this.slashes : "./"
+    );
   }
-
 }
 
 export class JavaScriptReferenceFixer {
-
   private src: string;
   private routes: string[];
 
   // routes are needed to check for references in js
-  constructor (src: string, routes: string[]) {
+  constructor(src: string, routes: string[]) {
     this.src = src;
     this.routes = routes;
   }
 
-  public getSrc (): string {
+  public getSrc(): string {
     this.replaceHrefs();
 
     return this.src;
   }
 
-  private replaceHrefs () {
-    for(const route of this.routes) {
+  private replaceHrefs() {
+    for (const route of this.routes) {
       const routeWithoutSlash = route.replace(/(^\/)/, "");
-        
-      this.src = this.src.replace(new RegExp(`(")((\/?)${ routeWithoutSlash })(?=[\/|"|?])`, "g"), `"/"+window.location.href.split('/')[3]+"/${ routeWithoutSlash }`);
-      this.src = this.src.replace(new RegExp(`(')((\/?)${ routeWithoutSlash })(?=[\/|'|?])`, "g"), `"/"+window.location.href.split('/')[3]+'/${ routeWithoutSlash }`);
-      this.src = this.src.replace(new RegExp(`(\`)((\/?)${ routeWithoutSlash })(?=[\/|\`|?])`, "g"), `"/"+window.location.href.split('/')[3]+\`/${ routeWithoutSlash }`);
+
+      this.src = this.src.replace(
+        new RegExp(`(")((\/?)${routeWithoutSlash})(?=[\/|"|?])`, "g"),
+        `"/"+window.location.href.split('/')[3]+"/${routeWithoutSlash}`
+      );
+      this.src = this.src.replace(
+        new RegExp(`(')((\/?)${routeWithoutSlash})(?=[\/|'|?])`, "g"),
+        `"/"+window.location.href.split('/')[3]+'/${routeWithoutSlash}`
+      );
+      this.src = this.src.replace(
+        new RegExp(`(\`)((\/?)${routeWithoutSlash})(?=[\/|\`|?])`, "g"),
+        `"/"+window.location.href.split('/')[3]+\`/${routeWithoutSlash}`
+      );
     }
   }
-
 }

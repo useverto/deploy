@@ -9,16 +9,16 @@ export default async function command(id: string) {
     case 400:
       log("Invalid transaction ID (400)", LogType.error);
       break;
-    
+
     case 500:
       log("Server error (500)", LogType.error);
       break;
-    
+
     case 200:
-      log("Status: 200 success", LogType.success)
+      log("Status: 200 success", LogType.success);
       break;
-    
+
     default:
-      log(`Status: pending (${ status })`, LogType.warning);
+      log(`Status: pending (${status})`, LogType.warning);
   }
 }

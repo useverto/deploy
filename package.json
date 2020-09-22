@@ -12,7 +12,9 @@
     "verto": "dist/index.js"
   },
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "fmt": "prettier --write .",
+    "fmt:check": "prettier --check ."
   },
   "dependencies": {
     "arweave": "^1.9.1",
@@ -25,6 +27,7 @@
     "@types/mime-types": "^2.1.0",
     "@types/node": "^14.6.0",
     "@types/sade": "^1.7.2",
+    "prettier": "^2.1.2",
     "typescript": "^3.9.7"
   },
   "files": [
