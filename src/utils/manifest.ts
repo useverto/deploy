@@ -1,7 +1,14 @@
 import { Route } from "../types";
-import template from "../assets/manifest-template.json";
+import { readFileSync } from "fs";
+import { join } from "path";
 
 export default function createManifest(routes: Route[]): string {
+  const template = JSON.parse(
+    new TextDecoder().decode(
+      readFileSync(join(__dirname, "../../assets/manifest-template.json"))
+    )
+  );
+
   let paths: Record<string, Record<string, string>> = {};
 
   for (const route of routes) {

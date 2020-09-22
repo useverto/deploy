@@ -62,14 +62,17 @@ export default async function command({
   mapFiles(deployDir);
 
   for (const fl of filesToDeploy) {
+    const relativeFileLocation = fl.replace(deployDir + "/", "");
     console.log(
-      `\x1b[2m    ${fl.replace(deployDir + "/", "")}    ${
+      `\x1b[2m    ${relativeFileLocation}    ${
         fs.statSync(fl).size / 1000000.0
       }MB\x1b[0m`
     );
     if (lookupType(fl) === "text/html")
       htmlRoutes.push(
-        fl.replace(deployDir + "/", "").replace(/((\/?)index\.html)$/, "")
+        relativeFileLocation === "index.html"
+          ? ""
+          : relativeFileLocation.replace(/(\/index\.html)$/, "")
       );
   }
 
