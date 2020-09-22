@@ -108,6 +108,7 @@ export class JavaScriptReferenceFixer {
 
   public getSrc(): string {
     this.replaceHrefs();
+    this.replaceRootHrefs();
 
     return this.src;
   }
@@ -129,5 +130,12 @@ export class JavaScriptReferenceFixer {
         `"/"+window.location.href.split('/')[3]+\`/${routeWithoutSlash}`
       );
     }
+  }
+
+  private replaceRootHrefs() {
+    this.src = this.src.replace(
+      new RegExp('(?<=("href",( ?)))("/")', "g"),
+      '"/"+window.location.href.split("/")[3]+"/"'
+    );
   }
 }
