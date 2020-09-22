@@ -69,11 +69,7 @@ export default async function command({
       }MB\x1b[0m`
     );
     if (lookupType(fl) === "text/html")
-      htmlRoutes.push(
-        relativeFileLocation === "index.html"
-          ? ""
-          : relativeFileLocation.replace(/(\/index\.html)$/, "")
-      );
+      htmlRoutes.push(relativeFileLocation.replace(/(\/index\.html)$/, ""));
   }
 
   const confirmation = await ask(
