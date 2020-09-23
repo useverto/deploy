@@ -117,23 +117,27 @@ export class JavaScriptReferenceFixer {
   // do not remove it
   private replaceHrefs() {
     for (const route of this.routes) {
-      const routeWithoutSlash = route.replace(/(^\/)/, "");
+      // replace the first slash, escape any chars for regex
+      const routeWithoutSlash = route
+        .replace(/(^\/)/, "")
+        .replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
 
+      // we are doing replace for each of ', " and ` just to make sure
       this.src = this.src.replace(
         // prettier-ignore
-        new RegExp(`(?<!("\/"\+window\.location\.href\.split\('\/'\)\[3\]\+))(")((\/?)${routeWithoutSlash})(?=[\/|"|?])`, "g"),
+        new RegExp(`(?<!(("\\\/"\\\+window\\\.location\\\.href\\\.split\('\\\/'\)\\\[3\]\\\+)|(\\\["delete",( ?)"get",( ?)"head",( ?))))(")((\\\/?)${routeWithoutSlash})(?=[\\\/|"|?])`, "g"),
         // prettier-ignore
         `"/"+window.location.href.split('/')[3]+"/${routeWithoutSlash}`
       );
       this.src = this.src.replace(
         // prettier-ignore
-        new RegExp(`(?<!("\/"\+window\.location\.href\.split\('\/'\)\[3\]\+))(')((\/?)${routeWithoutSlash})(?=[\/|'|?])`, "g"),
+        new RegExp(`(?<!(("\\\/"\\\+window\\\.location\\\.href\\\.split\('\\\/'\)\\\[3\\\]\\\+)|(\\\["delete",( ?)"get",( ?)"head",( ?))))(')((\\\/?)${routeWithoutSlash})(?=[\\\/|'|?])`, "g"),
         // prettier-ignore
         `"/"+window.location.href.split('/')[3]+'/${routeWithoutSlash}`
       );
       this.src = this.src.replace(
         // prettier-ignore
-        new RegExp(`(?<!("\/"\+window\.location\.href\.split\('\/'\)\[3\]\+))(\`)((\/?)${routeWithoutSlash})(?=[\/|\`|?])`, "g"),
+        new RegExp(`(?<!(("\\\/"\\\+window\\\.location\\\.href\\\.split\('\\\/'\)\\\[3\\\]\\\+)|(\\\["delete",( ?)"get",( ?)"head",( ?))))(\`)((\\\/?)${routeWithoutSlash})(?=[\\\/|\`|?])`, "g"),
         // prettier-ignore
         `"/"+window.location.href.split('/')[3]+\`/${routeWithoutSlash}`
       );
@@ -145,13 +149,13 @@ export class JavaScriptReferenceFixer {
   private replaceRootHrefs() {
     this.src = this.src.replace(
       // prettier-ignore
-      new RegExp('(?<=(("|\'|`)href("|\'|`),( ?)))(("|\'|`)\/("|\'|`))(?=\\\))', "g"),
+      new RegExp('(?<=(("|\'|`)href("|\'|`),( ?)))(("|\'|`)\/("|\'|`))(?=\\))', "g"),
       // prettier-ignore
       '"/"+window.location.href.split(\'/\')[3]+"/"'
     );
     this.src = this.src.replace(
       // prettier-ignore
-      new RegExp(`(?<!("\/"\+window\.location\.href\.split\('\/'\)\[3\]\+))(?<=((;|,)(([A-Z]|[a-z]|[_])*)\())("|'|\`)\/("|'|\`)(?=\))`, "g"),
+      new RegExp(`(?<!("\\\/"\\\+window\\\.location\\\.href\\\.split\\\('\\\/'\\\)\\\[3\\\]\\\+))(?<=((;|,)(([A-Z]|[a-z]|[_])*)\\\())("|'|\`)\\\/("|'|\`)(?=\\\))`, "g"),
       // prettier-ignore
       '"/"+window.location.href.split(\'/\')[3]+"/"'
     );
