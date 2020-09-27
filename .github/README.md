@@ -1,8 +1,26 @@
-# Verto deploy
+<p align="center">
+  <a href="https://verto.exchange">
+    <img src="https://raw.githubusercontent.com/useverto/design/master/logo/logo_light.svg" alt="Verto logo (light version)" width="110" />
+  </a>
 
-CLI tool for deploying [Sapper](https://sapper.svelte.dev) exported applications on Arweave
+  <h3 align="center">Verto Deploy</h3>
 
-> This project needs help. It does work, but it probably needs some adjustments to work with any Sapper app. I only tested it with [useverto/verto](https://github.com/useverto/verto).
+  <p align="center">
+    CLI tool for deploying <a href="https://sapper.svelte.dev">Sapper</a> exported applications on Arweave
+  </p>
+
+  <p align="center">
+    <img src="https://github.com/useverto/deploy/workflows/Build/badge.svg" alt="Build CI" />
+    <img src="https://github.com/useverto/deploy/workflows/Check%20formatting/badge.svg" alt="Check formatting" />
+  </p>
+
+</p>
+
+## About
+
+This is a CLI tool for deploying Svelte applications written in Sapper on Arweave
+
+> This project needs help. It does work, but it probably needs some adjustments to work with any Sapper app. It is only tested with [useverto/verto](https://github.com/useverto/verto).
 
 ## Installing
 
