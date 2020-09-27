@@ -125,21 +125,87 @@ export class JavaScriptReferenceFixer {
       // we are doing replace for each of ', " and ` just to make sure
       this.src = this.src.replace(
         // prettier-ignore
-        new RegExp(`(?<!(("\\\/"\\\+window\\\.location\\\.href\\\.split\('\\\/'\)\\\[3\]\\\+)|(\\\["delete",( ?)"get",( ?)"head",( ?))))(")((\\\/?)${routeWithoutSlash})(?=[\\\/|"|?])`, "g"),
-        // prettier-ignore
-        `"/"+window.location.href.split('/')[3]+"/${routeWithoutSlash}`
+        new RegExp(`(?<!("\\\/"\\\+window\\\.location\\\.href\\\.split\('\\\/'\)\\\[3\\\]\\\+)).{10}(")((\\\/?)${routeWithoutSlash})(?=(\\\/|"|\\\?))`, "g"),
+        (match) => {
+          if (
+            match.split(routeWithoutSlash)[0].includes("[") ||
+            !match.split(routeWithoutSlash)[0].includes("]")
+          )
+            if (
+              match.split(routeWithoutSlash)[0].includes('"POST"') ||
+              match.split(routeWithoutSlash)[0].includes('"GET"') ||
+              match.split(routeWithoutSlash)[0].includes('"PUT"') ||
+              match.split(routeWithoutSlash)[0].includes('"DELETE"') ||
+              match.split(routeWithoutSlash)[0].includes('"PATCH"') ||
+              match.split(routeWithoutSlash)[0].includes('"OPTIONS"') ||
+              match.split(routeWithoutSlash)[0].includes('"HEAD"') ||
+              match.split(routeWithoutSlash)[0].includes('"CONNECT"') ||
+              match.split(routeWithoutSlash)[0].includes('"TRACE"')
+            )
+              return match;
+          return match.replace(
+            // prettier-ignore
+            new RegExp(`(")(\\\/?)${ routeWithoutSlash }`, ""),
+            // prettier-ignore
+            `"/"+window.location.href.split('/')[3]+"/${routeWithoutSlash}`
+          );
+        }
       );
       this.src = this.src.replace(
         // prettier-ignore
-        new RegExp(`(?<!(("\\\/"\\\+window\\\.location\\\.href\\\.split\('\\\/'\)\\\[3\\\]\\\+)|(\\\["delete",( ?)"get",( ?)"head",( ?))))(')((\\\/?)${routeWithoutSlash})(?=[\\\/|'|?])`, "g"),
-        // prettier-ignore
-        `"/"+window.location.href.split('/')[3]+'/${routeWithoutSlash}`
+        new RegExp(`(?<!("\\\/"\\\+window\\\.location\\\.href\\\.split\('\\\/'\)\\\[3\\\]\\\+)).{10}(')((\\\/?)${routeWithoutSlash})(?=(\\\/|'|\\\?))`, "g"),
+        (match) => {
+          if (
+            match.split(routeWithoutSlash)[0].includes("[") ||
+            !match.split(routeWithoutSlash)[0].includes("]")
+          )
+            if (
+              match.split(routeWithoutSlash)[0].includes("'POST'") ||
+              match.split(routeWithoutSlash)[0].includes("'GET'") ||
+              match.split(routeWithoutSlash)[0].includes("'PUT'") ||
+              match.split(routeWithoutSlash)[0].includes("'DELETE'") ||
+              match.split(routeWithoutSlash)[0].includes("'PATCH'") ||
+              match.split(routeWithoutSlash)[0].includes("'OPTIONS'") ||
+              match.split(routeWithoutSlash)[0].includes("'HEAD'") ||
+              match.split(routeWithoutSlash)[0].includes("'CONNECT'") ||
+              match.split(routeWithoutSlash)[0].includes("'TRACE'")
+            )
+              return match;
+          return match.replace(
+            // prettier-ignore
+            new RegExp(`(')(\\\/?)${ routeWithoutSlash }`, ""),
+            // prettier-ignore
+            `"/"+window.location.href.split('/')[3]+'/${routeWithoutSlash}`
+          );
+        }
       );
       this.src = this.src.replace(
         // prettier-ignore
-        new RegExp(`(?<!(("\\\/"\\\+window\\\.location\\\.href\\\.split\('\\\/'\)\\\[3\\\]\\\+)|(\\\["delete",( ?)"get",( ?)"head",( ?))))(\`)((\\\/?)${routeWithoutSlash})(?=[\\\/|\`|?])`, "g"),
-        // prettier-ignore
-        `"/"+window.location.href.split('/')[3]+\`/${routeWithoutSlash}`
+        new RegExp(`(?<!("\\\/"\\\+window\\\.location\\\.href\\\.split\('\\\/'\)\\\[3\\\]\\\+)).{10}(\`)((\\\/?)${routeWithoutSlash})(?=(\\\/|\`|\\\?))`, "g"),
+        (match) => {
+          if (
+            match.split(routeWithoutSlash)[0].includes("[") ||
+            !match.split(routeWithoutSlash)[0].includes("]")
+          )
+            if (
+              match.split(routeWithoutSlash)[0].includes("`POST`") ||
+              match.split(routeWithoutSlash)[0].includes("`GET`") ||
+              match.split(routeWithoutSlash)[0].includes("`PUT`") ||
+              match.split(routeWithoutSlash)[0].includes("`DELETE`") ||
+              match.split(routeWithoutSlash)[0].includes("`PATCH`") ||
+              match.split(routeWithoutSlash)[0].includes("`OPTIONS`") ||
+              match.split(routeWithoutSlash)[0].includes("`HEAD`") ||
+              match.split(routeWithoutSlash)[0].includes("`CONNECT`") ||
+              match.split(routeWithoutSlash)[0].includes("`TRACE`")
+            )
+              return match;
+          return match.replace(
+            // prettier-ignore
+            new RegExp(`(\`)(\\\/?)${ routeWithoutSlash }`, ""),
+            // prettier-ignore
+            `"/"+window.location.href.split('/')[3]+\`/${routeWithoutSlash}`
+          );
+        }
       );
     }
   }
