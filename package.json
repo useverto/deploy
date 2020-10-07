@@ -16,6 +16,10 @@
     "fmt": "prettier --write .",
     "fmt:check": "prettier --check ."
   },
+  "gitHooks": {
+    "pre-commit": "prettier --write . && git add -A",
+    "commit-msg": "node verify_commit.js"
+  },
   "dependencies": {
     "arweave": "^1.9.1",
     "cli-progress": "^3.8.2",
@@ -28,7 +32,8 @@
     "@types/node": "^14.6.0",
     "@types/sade": "^1.7.2",
     "prettier": "^2.1.2",
-    "typescript": "^3.9.7"
+    "typescript": "^3.9.7",
+    "yorkie": "^2.0.0"
   },
   "files": [
     "dist/**/*"
