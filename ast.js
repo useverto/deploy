@@ -81,7 +81,12 @@ svelte.walk(ast, {
   enter(node) {
     if (node.type === "CallExpression") {
       if (node.callee.name === "goto") {
-        console.log(node);
+        console.log(node.arguments[0]);
+        const newHref =
+          "/" + window.location.href.split("/")[3] + node.arguments[0].value;
+        node.arguments[0].value = newHref;
+        node.arguments[0].raw = '"' + newHref + '"';
+        console.log(node.arguments[0]);
       }
     }
   },
