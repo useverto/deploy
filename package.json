@@ -24,7 +24,8 @@
     "arweave": "^1.9.1",
     "cli-progress": "^3.8.2",
     "mime-types": "^2.1.27",
-    "sade": "^1.7.3"
+    "sade": "^1.7.3",
+    "svelte": "^3.29.0"
   },
   "devDependencies": {
     "@types/cli-progress": "^3.8.0",
